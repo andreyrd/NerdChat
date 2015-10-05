@@ -1,0 +1,33 @@
+﻿<Window x:Class="NerdChat.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:NerdChat"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <TextBox 
+            x:Name="chatBox" 
+            HorizontalAlignment="Stretch" 
+            VerticalAlignment="Stretch"
+            Margin="24,24,24,54" 
+            TextWrapping="Wrap" 
+            Text="Welcome to NerdChat, a crappy IRC client!" />
+        <TextBox 
+            x:Name="messageField" 
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Bottom"
+            Height="20"
+            Margin="124,0,24,24" 
+            TextWrapping="Wrap" />
+        <TextBox 
+            x:Name="destField" 
+            Width="100"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Bottom"
+            Height="20"
+            Margin="24,0,24,24" 
+            TextWrapping="Wrap" />
+    </Grid>
+</Window>
