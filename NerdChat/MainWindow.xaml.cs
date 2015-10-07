@@ -49,6 +49,18 @@ namespace NerdChat
             //Open IRC client connection
             irc.Connect("irc.freenode.net", false, info);
             irc.RawMessageReceived += IrcClient_Receive;
+
+            // Add server to treeview
+            TreeViewItem serverTreeItem = new TreeViewItem();
+            serverTreeItem.Header = "irc.freenode.net";
+            channelTree.Items.Add(serverTreeItem);
+
+            // Add some dummy channels for testing
+            for (int i = 0; i < 10; i++) {
+                TreeViewItem dummyItem = new TreeViewItem();
+                dummyItem.Header = "#dummy" + i;
+                serverTreeItem.Items.Add(dummyItem);
+            }
         }
         /// <summary>
         /// Service routine for recieving data from the IRC server.  Keep this routine simple and jump to another routine as soon as the nature of the message is known.  This should run in the main server thread.

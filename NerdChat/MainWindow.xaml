@@ -7,27 +7,53 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="4" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <TreeView
+            x:Name="channelTree"
+            Padding="4,4,4,4"
+            Grid.Row="0"
+            Margin="8,8,0,8"
+            Grid.RowSpan="2" />
+        <GridSplitter
+            Grid.Column="1"
+            Grid.Row="0"
+            Grid.RowSpan="2"
+            Width="4"
+            ResizeDirection="Columns"
+            ResizeBehavior="PreviousAndNext"
+            Background="Transparent"
+            />
         <TextBox 
-            x:Name="chatBox" 
-            HorizontalAlignment="Stretch" 
-            VerticalAlignment="Stretch"
-            Margin="24,24,24,54" 
+            x:Name="chatBox"
+            Margin="0,8,8,2" 
             TextWrapping="Wrap" 
+            Grid.Row="0"
+            Grid.Column="2"
+            IsReadOnly="True"
             Text="Welcome to NerdChat, a crappy IRC client!" />
         <TextBox 
-            x:Name="messageField" 
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Bottom"
+            x:Name="destField" 
             Height="20"
-            Margin="124,0,24,24" 
+            Width="100"
+            Grid.Row="1"
+            Grid.Column="2"
+            HorizontalAlignment="Left"
+            Margin="0,2,8,8" 
             TextWrapping="Wrap" />
         <TextBox 
-            x:Name="destField" 
-            Width="100"
-            HorizontalAlignment="Left"
-            VerticalAlignment="Bottom"
+            x:Name="messageField" 
             Height="20"
-            Margin="24,0,24,24" 
+            Grid.Row="1"
+            Grid.Column="2"
+            Margin="104,2,8,8" 
             TextWrapping="Wrap" />
     </Grid>
 </Window>
