@@ -28,7 +28,7 @@ namespace NerdChat
     /// </summary>
     public partial class MainWindow : Window
     {
-        public StandardIrcClient irc;
+        public IRCSocket irc;
         public List<String> m_BlackListHosts = new List<string>();
       
 
@@ -38,17 +38,18 @@ namespace NerdChat
             this.messageField.KeyDown += textBoxEnter;
 
             //Instantiate an IRC client session
-            irc = new StandardIrcClient();
-            IrcRegistrationInfo info = new IrcUserRegistrationInfo()
-            {
-                NickName = Environment.UserName, // "NerdChat",
-                UserName = Environment.UserName + "NerdChat",
-                RealName = "NerdChat"
-            };
+            irc = new IRCSocket(System.Net.Dns.Resolve("irc.freenode.net").AddressList[0].ToString(), 6667, "tummcid");
+
+            //IrcRegistrationInfo info = new IrcUserRegistrationInfo()
+            //{
+            //    NickName = Environment.UserName, // "NerdChat",
+            //    UserName = Environment.UserName + "NerdChat",
+            //    RealName = "NerdChat"
+            //};
 
             //Open IRC client connection
-            irc.Connect("irc.freenode.net", false, info);
-            irc.RawMessageReceived += IrcClient_Receive;
+            irc.doWork();
+            //irc.RawMessageReceived += IrcClient_Receive;
 
             // Add server to treeview
             TreeViewItem serverTreeItem = new TreeViewItem();
@@ -94,7 +95,7 @@ namespace NerdChat
             {
                 case "PRIVMSG":
                     logText = "PRIVMSG from " + userName;
-                    HandlePrivMsg(userName, e.RawContent.Substring(e.RawContent.IndexOf(':', 1)+1)); //skip the first ':' and grab everything after the second
+                    //HandlePrivMsg(userName, e.RawContent.Substring(e.RawContent.IndexOf(':', 1)+1)); //skip the first ':' and grab everything after the second
                     break;
 
                 default:
@@ -115,13 +116,13 @@ namespace NerdChat
         /// </summary>
         /// <param name="fromNick">nickname of the user that sent this private message.  RFC specifies this can be a list of names or channels separated with commas</param>
         /// <param name="message">content of this message.  RFC 1459 sets a hard limit here around ~512 characters</param>
-        private void HandlePrivMsg(String fromNick, String message)
+        public void HandlePrivMsg(String message)
         {
             //TODO write a privmsg handler
             //TODO Pass privmsg to handler
             chatBox.Dispatcher.Invoke(delegate
             {
-                chatBox.AppendText(fromNick + " > " + message + "\n");
+                chatBox.AppendText(message + "\n");
                 chatBox.ScrollToEnd();
             });
         }
@@ -136,7 +137,7 @@ namespace NerdChat
                 chatBox.AppendText(dest + " > " + text + "\n");
                 chatBox.ScrollToEnd();
 
-                irc.LocalUser.SendMessage(dest, text);
+                irc.SendString(text);
                 messageField.Clear();
             }
         }
