@@ -8,11 +8,12 @@ using System.Threading.Tasks;
 
 namespace NerdChat
 {
-    class IRCSocket
+    public class IRCSocket
     {
         const int IN_BUFFER = 512;
-        static Socket m_Con;
-        static Thread listenThread;
+        Socket m_Con;
+        Thread listenThread;
+        Thread sendThread;
         String m_userName;
         String m_Password;
         String m_ServerAddress;
@@ -34,14 +35,20 @@ namespace NerdChat
             m_Inbound = new Queue<string>();
             m_Outbound = new Queue<string>();
 
-        }
-        public void doWork()
-        {
+            sendThread = new Thread(() =>
+            {
+                while (true)
+                {
+                    if (m_Outbound.Count == 0)
+                        continue;
 
-            //              m_Con.Connect(System.Net.Dns.Resolve("irc.freenode.net").AddressList[0], 6667);              
-            m_Con.Connect(System.Net.IPAddress.Parse(m_ServerAddress), m_Port);
-            SendString("USER " + m_userName);
-            listenThread = new Thread(() =>
+                    String sendData = m_Outbound.Dequeue();
+
+                    m_Con.Send(Encoding.ASCII.GetBytes(sendData + "\r\n"));
+                }
+
+            });
+                listenThread = new Thread(() =>
             {
                 byte[] inData = new byte[IN_BUFFER];
                 StringBuilder inbound = new StringBuilder();
@@ -51,7 +58,8 @@ namespace NerdChat
                 {
                     Array.Clear(inData, 0, IN_BUFFER);
                     int inSize = m_Con.Receive(inData, IN_BUFFER, SocketFlags.None);
-                    //file.WriteLine(Encoding.ASCII.GetString(inData));
+                    if (inSize < 1)
+                        break;
                     inbound.Append(Encoding.ASCII.GetString(inData).Substring(0, inSize));
                     if ((inSize == IN_BUFFER) || (!Encoding.ASCII.GetString(inData).Substring(inSize - 2, 2).Equals("\r\n")))
                         continue;
@@ -109,7 +117,7 @@ namespace NerdChat
                                     target = command.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1];
                                     if (target.Equals("AUTH"))
                                     {
-                                        SendString("PASS " + System.Configuration.ConfigurationManager.AppSettings["Auth"]);
+                                        SendString("PASS " + m_userName + ":" + m_Password);// System.Configuration.ConfigurationManager.AppSettings["Auth"]);
                                         SendString("NICK " + m_userName);
                                     }
                                     logText = target + prefix.Split('!')[0] + "> " + extra;
@@ -124,14 +132,29 @@ namespace NerdChat
 
                     inbound.Clear();
                 }//Read socket again
+                m_Con.Close();
+                
             });
-            listenThread.Start();
-            // Convert the string data to byte data using ASCII encoding.
-            Console.ReadLine();
-            listenThread.Abort();
-            m_Con.Close();
+
         }
-        private static void SendString(string data)
+        public void doWork()
+        {
+
+            //              m_Con.Connect(System.Net.Dns.Resolve("irc.freenode.net").AddressList[0], 6667);              
+            m_Con.Connect(System.Net.IPAddress.Parse(m_ServerAddress), m_Port);
+
+            listenThread.Start();
+            m_Outbound.Enqueue("NICK " + m_userName);
+            m_Outbound.Enqueue("USER " + m_userName + " 8 * : username");
+            m_Outbound.Enqueue("JOIN #nerdchat");
+            sendThread.Start();
+            //SendString("USER " + m_userName + " 8 * : name"); 
+            // Convert the string data to byte data using ASCII encoding.
+            //Console.ReadLine();
+            //listenThread.Abort();
+            //m_Con.Close();
+        }
+        public void SendString(string data)
         {
             byte[] byteData = Encoding.ASCII.GetBytes(data + "\r\n");
 
