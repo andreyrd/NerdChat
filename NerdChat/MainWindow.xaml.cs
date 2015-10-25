@@ -32,7 +32,7 @@ namespace NerdChat
 
         public IRCSocket irc;
         public List<String> m_BlackListHosts = new List<string>();
-      
+        public List<String> m_Channels = new List<string>();
 
         public MainWindow()
         {
@@ -58,11 +58,17 @@ namespace NerdChat
             serverTreeItem.Header = "irc.freenode.net";
             channelTree.Items.Add(serverTreeItem);
 
-            // Add some dummy channels for testing
-            for (int i = 0; i < 10; i++) {
-                TreeViewItem dummyItem = new TreeViewItem();
-                dummyItem.Header = "#dummy" + i;
-                serverTreeItem.Items.Add(dummyItem);
+            // Populate channel list with some test channels
+            m_Channels.Add("#amagital-spam");
+            m_Channels.Add("#nerdchat-testing");
+
+            // Join and add channels to the tree
+            foreach (String channel in m_Channels)
+            {
+                irc.m_Outbound.Enqueue("JOIN " + channel);
+                TreeViewItem channelTreeItem = new TreeViewItem();
+                channelTreeItem.Header = channel;
+                serverTreeItem.Items.Add(channelTreeItem);
             }
 
             listenThread = new Thread(() =>
@@ -145,13 +151,13 @@ namespace NerdChat
         {
             if (e.Key == Key.Enter)
             {
-                String dest = destField.Text;
+                String dest = ((TreeViewItem)channelTree.SelectedItem).Header.ToString();
                 String text = messageField.Text;
 
                 chatBox.AppendText(dest + " > " + text + "\n");
                 chatBox.ScrollToEnd();
 
-                irc.SendString(text);
+                irc.SendString("PRIVMSG " + dest + " " + text);
                 messageField.Clear();
             }
         }

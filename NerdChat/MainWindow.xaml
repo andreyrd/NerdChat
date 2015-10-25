@@ -40,20 +40,11 @@
             IsReadOnly="True"
             Text="Welcome to NerdChat, a crappy IRC client!" />
         <TextBox 
-            x:Name="destField" 
-            Height="20"
-            Width="100"
-            Grid.Row="1"
-            Grid.Column="2"
-            HorizontalAlignment="Left"
-            Margin="0,2,8,8" 
-            TextWrapping="Wrap" />
-        <TextBox 
             x:Name="messageField" 
             Height="20"
             Grid.Row="1"
             Grid.Column="2"
-            Margin="104,2,8,8" 
+            Margin="0,2,8,8" 
             TextWrapping="Wrap" />
     </Grid>
 </Window>

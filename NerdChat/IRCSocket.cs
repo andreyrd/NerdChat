@@ -146,7 +146,7 @@ namespace NerdChat
             listenThread.Start();
             m_Outbound.Enqueue("NICK " + m_userName);
             m_Outbound.Enqueue("USER " + m_userName + " 8 * : username");
-            m_Outbound.Enqueue("JOIN #nerdchat");
+            //m_Outbound.Enqueue("JOIN #nerdchat");
             sendThread.Start();
             //SendString("USER " + m_userName + " 8 * : name"); 
             // Convert the string data to byte data using ASCII encoding.
