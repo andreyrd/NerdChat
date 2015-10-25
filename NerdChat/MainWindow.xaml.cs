@@ -28,6 +28,8 @@ namespace NerdChat
     /// </summary>
     public partial class MainWindow : Window
     {
+        Thread listenThread;
+
         public IRCSocket irc;
         public List<String> m_BlackListHosts = new List<string>();
       
@@ -62,6 +64,18 @@ namespace NerdChat
                 dummyItem.Header = "#dummy" + i;
                 serverTreeItem.Items.Add(dummyItem);
             }
+
+            listenThread = new Thread(() =>
+            {
+                while (true)
+                {
+                    if (irc.m_Inbound.Count == 0)
+                        continue;
+
+                    HandlePrivMsg(irc.m_Inbound.Dequeue());
+                }
+            });
+            listenThread.Start();
         }
         /// <summary>
         /// Service routine for recieving data from the IRC server.  Keep this routine simple and jump to another routine as soon as the nature of the message is known.  This should run in the main server thread.
