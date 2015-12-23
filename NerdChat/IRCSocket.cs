@@ -19,7 +19,7 @@ namespace NerdChat
         String m_ServerAddress;
         int m_Port;
 
-        public Queue<string> m_Inbound;
+        public Queue<IRCMessage> m_Inbound;
         public Queue<IRCMessage> m_Outbound; //IRCMessage
 
         public IRCSocket(String server, int port, String username, String pass = "")
@@ -32,7 +32,7 @@ namespace NerdChat
             m_Con = new Socket(AddressFamily.InterNetwork,
           SocketType.Stream, ProtocolType.Tcp);
 
-            m_Inbound = new Queue<String>();
+            m_Inbound = new Queue<IRCMessage>();
             m_Outbound = new Queue<IRCMessage>();
 
             sendThread = new Thread(() =>
@@ -74,25 +74,30 @@ namespace NerdChat
                             SendString("PONG " + line.Split(':')[1]);
                             continue;
                         }
+                            string logText = "";
                         IRCMessage inM = new IRCMessage();
-                        inM.host = line.Substring(line.IndexOf(':')).Split(' ')[0];
-
-                        //Check if prefix is well formed
-                        if (inM.host.Length == 0)
-                            throw new Exception("unable to parse prefix");
-
-                        inM.command = line.Substring(inM.host.Length).Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries)[0];
-                        string logText = "";
-
-                        //Check if source is blacklisted
-                        //if (m_BlackListHosts.Contains(prefix))
-                        //{
-                        //    //TODO log this?
-                        //    return;
-                        //}
-
                         try
                         {
+                            inM.host = line.Substring(line.IndexOf(':')).Split(' ')[0];
+
+                            //Check if prefix is well formed
+                            if (inM.host.Length == 0)
+                                throw new FormatException("unable to parse prefix");
+
+                            inM.command = line.Substring(inM.host.Length).Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
+                            if (inM.command.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Count() > 1)
+                            {
+                                inM.userName = inM.command.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1];
+                                inM.command = inM.command.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[0];
+                            }
+
+                            //Check if source is blacklisted
+                            //if (m_BlackListHosts.Contains(prefix))
+                            //{
+                            //    //TODO log this?
+                            //    return;
+                            //}
+
                             inM.payload = line.Substring(inM.command.Length + inM.host.Length);
                             if (inM.payload.Length > 0)
                                 inM.payload = inM.payload.Substring(1); //Remove the ':' cos who needs it?
@@ -102,8 +107,8 @@ namespace NerdChat
                             throw new Exception("pasring error", ex);
                         }
                         //Examine the command
-                        if ((inM.command.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[0].Length == 3) &&
-                            (!inM.command.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[0].Equals("WHO")))//duurrrrr?
+                        if ((inM.command.Length == 3) &&
+                            (!inM.command.Equals("WHO")))//duurrrrr?
                         {
                             logText = " number ";
                         }
@@ -112,8 +117,7 @@ namespace NerdChat
                             {
                                 case "NOTICE":
                                 case "PRIVMSG":
-
-                                    inM.userName = inM.command.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1];
+                                    
                                     if (inM.userName.Equals("AUTH"))
                                     {
                                         SendString("PASS " + m_userName + ":" + m_Password);// System.Configuration.ConfigurationManager.AppSettings["Auth"]);
@@ -125,10 +129,9 @@ namespace NerdChat
                                     logText = "Unknown Command " + inM.command;
                                     break;
                             }
-                        inM.command = inM.command.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[0];
 
-                        Console.WriteLine(logText);
-                        m_Inbound.Enqueue(logText);
+                        //Console.WriteLine(logText);
+                        m_Inbound.Enqueue(inM);
                     }
 
                     inbound.Clear();

@@ -145,7 +145,7 @@ namespace NerdChat
         /// </summary>
         /// <param name="fromNick">nickname of the user that sent this private message.  RFC specifies this can be a list of names or channels separated with commas</param>
         /// <param name="message">content of this message.  RFC 1459 sets a hard limit here around ~512 characters</param>
-        public void HandlePrivMsg(String message)
+        public void HandlePrivMsg(IRCMessage message)
         {
             //TODO write a privmsg handler
             //if (!m_Channels.Contains(userName))
@@ -153,7 +153,7 @@ namespace NerdChat
             //TODO Pass privmsg to handler
             chatBox.Dispatcher.Invoke(delegate
             {
-                chatBox.AppendText(message + "\n");
+                chatBox.AppendText(message.userName + "> " + message.payload + "\n");
                 chatBox.ScrollToEnd();
             });
         }
