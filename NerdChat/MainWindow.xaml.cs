@@ -148,6 +148,8 @@ namespace NerdChat
         public void HandlePrivMsg(String message)
         {
             //TODO write a privmsg handler
+            //if (!m_Channels.Contains(userName))
+            //    m_Channels.Add(userName);
             //TODO Pass privmsg to handler
             chatBox.Dispatcher.Invoke(delegate
             {
