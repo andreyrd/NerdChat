@@ -95,11 +95,12 @@ namespace NerdChat
                             {
                                 inM.dest = inM.command.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1];
                                 inM.command = inM.command.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[0];
+                                //inM.payload = line.Substring(inM.command.Length + inM.host.Length + inM.command.Length);
+                                inM.payload = line.Split(new String[] { inM.dest } ,StringSplitOptions.RemoveEmptyEntries)[1];
+                                if (inM.payload.Length > 0)
+                                    inM.payload = inM.payload.Substring(1); //Remove the ':' cos who needs it?
                             }
 
-                            inM.payload = line.Substring(inM.command.Length + inM.host.Length);
-                            if (inM.payload.Length > 0)
-                                inM.payload = inM.payload.Substring(1); //Remove the ':' cos who needs it?
                         }
                         catch (Exception ex)
                         {

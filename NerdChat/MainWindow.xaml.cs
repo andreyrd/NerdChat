@@ -34,9 +34,12 @@ namespace NerdChat
         public List<String> m_BlackListHosts = new List<string>();
         public List<String> m_Channels = new List<string>();
 
+        public List<TreeViewItem> m_Servers;
+
         public MainWindow()
         {
             InitializeComponent();
+            m_Servers = new List<TreeViewItem>();
             this.messageField.KeyDown += textBoxEnter;
 
             //Instantiate an IRC client session
@@ -58,9 +61,9 @@ namespace NerdChat
             //irc.RawMessageReceived += IrcClient_Receive;
 
             // Add server to treeview
-            TreeViewItem serverTreeItem = new TreeViewItem();
-            serverTreeItem.Header = "192.40.56.139";
-            channelTree.Items.Add(serverTreeItem);
+            m_Servers.Add( new TreeViewItem());
+            m_Servers[0].Header = "192.40.56.139";
+            channelTree.Items.Add(m_Servers[0]);
 
             // Populate channel list with some test channels
             m_Channels.Add("#amagital-spam");
@@ -75,7 +78,7 @@ namespace NerdChat
                 irc.m_Outbound.Enqueue(new IRCMessage("JOIN",channel));
                 TreeViewItem channelTreeItem = new TreeViewItem();
                 channelTreeItem.Header = channel;
-                serverTreeItem.Items.Add(channelTreeItem);
+                m_Servers[0].Items.Add(channelTreeItem);
             }
 
             listenThread = new Thread(() =>
@@ -148,12 +151,12 @@ namespace NerdChat
         public void HandlePrivMsg(IRCMessage message)
         {
             //TODO write a privmsg handler
-            //if (!m_Channels.Contains(userName))
-            //    m_Channels.Add(userName);
+            if (!m_Channels.Contains(message.dest))
+                m_Channels.Add(message.dest);
             //TODO Pass privmsg to handler
             chatBox.Dispatcher.Invoke(delegate
             {
-                chatBox.AppendText(message.dest + "> " + message.payload + "\n");
+                chatBox.AppendText(message.dest + "\t||" + message.host + "> " + message.payload + "\n");
                 chatBox.ScrollToEnd();
             });
         }
