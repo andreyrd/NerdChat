@@ -9,9 +9,9 @@ namespace NerdChat
     /// <summary>
     /// https://tools.ietf.org/html/rfc1459
     /// </summary>
-    class RFC1459
+    public class RFC1459
     {
-        public static readonly IEnumerable<string> commands = new List<string>()
+        public static List<string> commands = new List<string>()
             {
                 "ADMIN",
                 "AWAY",

@@ -20,7 +20,7 @@ namespace NerdChat
         int m_Port;
 
         public Queue<string> m_Inbound;
-        public Queue<string> m_Outbound;
+        public Queue<IRCMessage> m_Outbound; //IRCMessage
 
         public IRCSocket(String server, int port, String username, String pass = "")
         {
@@ -33,7 +33,7 @@ namespace NerdChat
           SocketType.Stream, ProtocolType.Tcp);
 
             m_Inbound = new Queue<string>();
-            m_Outbound = new Queue<string>();
+            m_Outbound = new Queue<IRCMessage>();
 
             sendThread = new Thread(() =>
             {
@@ -42,9 +42,9 @@ namespace NerdChat
                     if (m_Outbound.Count == 0)
                         continue;
 
-                    String sendData = m_Outbound.Dequeue();
+                    IRCMessage sendData = m_Outbound.Dequeue();
 
-                    m_Con.Send(Encoding.ASCII.GetBytes(sendData + "\r\n"));
+                    m_Con.Send(Encoding.ASCII.GetBytes(sendData.command + " " + sendData.payload + "\r\n"));
                 }
 
             });
@@ -144,8 +144,8 @@ namespace NerdChat
             m_Con.Connect(System.Net.IPAddress.Parse(m_ServerAddress), m_Port);
 
             listenThread.Start();
-            m_Outbound.Enqueue("NICK " + m_userName);
-            m_Outbound.Enqueue("USER " + m_userName + " 8 * : username");
+            m_Outbound.Enqueue(new IRCMessage("NICK", m_userName));
+            m_Outbound.Enqueue(new IRCMessage("USER" , m_userName + " 8 * : username"));
             //m_Outbound.Enqueue("JOIN #nerdchat");
             sendThread.Start();
             //SendString("USER " + m_userName + " 8 * : name"); 
@@ -160,6 +160,24 @@ namespace NerdChat
 
             // Begin sending the data to the remote device.
             m_Con.Send(byteData);
+        }
+    }
+    public class IRCMessage
+    {
+        public String userName;
+        public String host;
+        public String payload;
+        public String command;
+
+        public IRCMessage(string Command)
+        {
+            command = Command;
+        }
+
+        public IRCMessage(string Command, string Payload)
+        {
+            command = Command;
+            payload = Payload;
         }
     }
 }

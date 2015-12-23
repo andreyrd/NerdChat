@@ -40,7 +40,11 @@ namespace NerdChat
             this.messageField.KeyDown += textBoxEnter;
 
             //Instantiate an IRC client session
-            irc = new IRCSocket(System.Net.Dns.Resolve("irc.freenode.net").AddressList[0].ToString(), 6667, "tummcid");
+            irc = new IRCSocket(
+                System.Net.Dns.Resolve(System.Configuration.ConfigurationManager.AppSettings["Server"]).AddressList[0].ToString(),
+                int.Parse(System.Configuration.ConfigurationManager.AppSettings["Port"]),
+                System.Configuration.ConfigurationManager.AppSettings["Username"], 
+                System.Configuration.ConfigurationManager.AppSettings["Auth"]);
 
             //IrcRegistrationInfo info = new IrcUserRegistrationInfo()
             //{
@@ -55,7 +59,7 @@ namespace NerdChat
 
             // Add server to treeview
             TreeViewItem serverTreeItem = new TreeViewItem();
-            serverTreeItem.Header = "irc.freenode.net";
+            serverTreeItem.Header = "192.40.56.139";
             channelTree.Items.Add(serverTreeItem);
 
             // Populate channel list with some test channels
@@ -65,7 +69,10 @@ namespace NerdChat
             // Join and add channels to the tree
             foreach (String channel in m_Channels)
             {
-                irc.m_Outbound.Enqueue("JOIN " + channel);
+                IRCMessage outB = new IRCMessage("JOIN");
+                outB.payload = channel;
+
+                irc.m_Outbound.Enqueue(new IRCMessage("JOIN",channel));
                 TreeViewItem channelTreeItem = new TreeViewItem();
                 channelTreeItem.Header = channel;
                 serverTreeItem.Items.Add(channelTreeItem);
@@ -115,6 +122,8 @@ namespace NerdChat
             {
                 case "PRIVMSG":
                     logText = "PRIVMSG from " + userName;
+                    if (!m_Channels.Contains(userName))
+                        m_Channels.Add(userName);
                     //HandlePrivMsg(userName, e.RawContent.Substring(e.RawContent.IndexOf(':', 1)+1)); //skip the first ':' and grab everything after the second
                     break;
 
@@ -157,7 +166,8 @@ namespace NerdChat
                 chatBox.AppendText(dest + " > " + text + "\n");
                 chatBox.ScrollToEnd();
 
-                irc.SendString("PRIVMSG " + dest + " " + text);
+                //irc.SendString("PRIVMSG " + dest + " " + text);
+                irc.m_Outbound.Enqueue(new IRCMessage("PRIVMSG", dest + " " + text));
                 messageField.Clear();
             }
         }

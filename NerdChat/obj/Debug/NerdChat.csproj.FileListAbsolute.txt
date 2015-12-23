@@ -35,3 +35,18 @@ D:\franky\NerdChat\NerdChat\obj\Debug\NerdChat.csproj.GenerateResource.Cache
 D:\franky\NerdChat\NerdChat\obj\Debug\NerdChat.exe
 D:\franky\NerdChat\NerdChat\obj\Debug\NerdChat.pdb
 C:\Users\tummyacid\Documents\Visual Studio 2015\Projects\NerdChat\NerdChat\bin\Debug\NerdChat.exe.config
+C:\Users\tummyacid\Documents\Visual Studio 2015\Projects\NerdChat\NerdChat\bin\Debug\NerdChat.exe
+C:\Users\tummyacid\Documents\Visual Studio 2015\Projects\NerdChat\NerdChat\bin\Debug\NerdChat.pdb
+C:\Users\tummyacid\Documents\Visual Studio 2015\Projects\NerdChat\NerdChat\bin\Debug\IrcDotNet.dll
+C:\Users\tummyacid\Documents\Visual Studio 2015\Projects\NerdChat\NerdChat\bin\Debug\IrcDotNet.xml
+C:\Users\tummyacid\Documents\Visual Studio 2015\Projects\NerdChat\NerdChat\obj\Debug\NerdChat.csprojResolveAssemblyReference.cache
+C:\Users\tummyacid\Documents\Visual Studio 2015\Projects\NerdChat\NerdChat\obj\Debug\MainWindow.g.cs
+C:\Users\tummyacid\Documents\Visual Studio 2015\Projects\NerdChat\NerdChat\obj\Debug\App.g.cs
+C:\Users\tummyacid\Documents\Visual Studio 2015\Projects\NerdChat\NerdChat\obj\Debug\NerdChat_MarkupCompile.cache
+C:\Users\tummyacid\Documents\Visual Studio 2015\Projects\NerdChat\NerdChat\obj\Debug\NerdChat_MarkupCompile.lref
+C:\Users\tummyacid\Documents\Visual Studio 2015\Projects\NerdChat\NerdChat\obj\Debug\MainWindow.baml
+C:\Users\tummyacid\Documents\Visual Studio 2015\Projects\NerdChat\NerdChat\obj\Debug\NerdChat.g.resources
+C:\Users\tummyacid\Documents\Visual Studio 2015\Projects\NerdChat\NerdChat\obj\Debug\NerdChat.Properties.Resources.resources
+C:\Users\tummyacid\Documents\Visual Studio 2015\Projects\NerdChat\NerdChat\obj\Debug\NerdChat.csproj.GenerateResource.Cache
+C:\Users\tummyacid\Documents\Visual Studio 2015\Projects\NerdChat\NerdChat\obj\Debug\NerdChat.exe
+C:\Users\tummyacid\Documents\Visual Studio 2015\Projects\NerdChat\NerdChat\obj\Debug\NerdChat.pdb
