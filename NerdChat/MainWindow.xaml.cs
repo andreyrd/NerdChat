@@ -153,7 +153,7 @@ namespace NerdChat
             //TODO Pass privmsg to handler
             chatBox.Dispatcher.Invoke(delegate
             {
-                chatBox.AppendText(message.userName + "> " + message.payload + "\n");
+                chatBox.AppendText(message.dest + "> " + message.payload + "\n");
                 chatBox.ScrollToEnd();
             });
         }

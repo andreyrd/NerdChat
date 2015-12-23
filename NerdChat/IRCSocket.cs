@@ -79,6 +79,12 @@ namespace NerdChat
                         try
                         {
                             inM.host = line.Substring(line.IndexOf(':')).Split(' ')[0];
+                            //Check if source is blacklisted
+                            //if (m_BlackListHosts.Contains(inM.host))
+                            //{
+                            //    //TODO log this?
+                            //    return;
+                            //}
 
                             //Check if prefix is well formed
                             if (inM.host.Length == 0)
@@ -87,16 +93,9 @@ namespace NerdChat
                             inM.command = line.Substring(inM.host.Length).Split(new char[] { ':' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
                             if (inM.command.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Count() > 1)
                             {
-                                inM.userName = inM.command.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1];
+                                inM.dest = inM.command.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1];
                                 inM.command = inM.command.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[0];
                             }
-
-                            //Check if source is blacklisted
-                            //if (m_BlackListHosts.Contains(prefix))
-                            //{
-                            //    //TODO log this?
-                            //    return;
-                            //}
 
                             inM.payload = line.Substring(inM.command.Length + inM.host.Length);
                             if (inM.payload.Length > 0)
@@ -118,12 +117,12 @@ namespace NerdChat
                                 case "NOTICE":
                                 case "PRIVMSG":
                                     
-                                    if (inM.userName.Equals("AUTH"))
+                                    if (inM.dest.Equals("AUTH"))
                                     {
                                         SendString("PASS " + m_userName + ":" + m_Password);// System.Configuration.ConfigurationManager.AppSettings["Auth"]);
                                         SendString("NICK " + m_userName);
                                     }
-                                    logText = inM.userName + inM.host.Split('!')[0] + "> " + inM.payload;
+                                    logText = inM.dest + "||" + inM.host + "> " + inM.payload;
                                     break;
                                 default:
                                     logText = "Unknown Command " + inM.command;
@@ -133,7 +132,6 @@ namespace NerdChat
                         //Console.WriteLine(logText);
                         m_Inbound.Enqueue(inM);
                     }
-
                     inbound.Clear();
                 }//Read socket again
                 m_Con.Close();
@@ -168,8 +166,8 @@ namespace NerdChat
     }
     public class IRCMessage
     {
-        public String userName;
-        public String host;
+        public String dest;
+        public String host = "localhost";
         public String payload;
         public String command;
 
@@ -186,5 +184,12 @@ namespace NerdChat
             command = Command;
             payload = Payload;
         }
+    }
+
+    public class PrivMessage : IRCMessage
+    {
+        public String target;
+        public String message;
+
     }
 }
