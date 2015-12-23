@@ -28,9 +28,11 @@ namespace NerdChat
     /// </summary>
     public partial class MainWindow : Window
     {
-        public StandardIrcClient irc;
+        Thread listenThread;
+
+        public IRCSocket irc;
         public List<String> m_BlackListHosts = new List<string>();
-      
+        public List<String> m_Channels = new List<string>();
 
         public MainWindow()
         {
@@ -38,29 +40,48 @@ namespace NerdChat
             this.messageField.KeyDown += textBoxEnter;
 
             //Instantiate an IRC client session
-            irc = new StandardIrcClient();
-            IrcRegistrationInfo info = new IrcUserRegistrationInfo()
-            {
-                NickName = Environment.UserName, // "NerdChat",
-                UserName = Environment.UserName + "NerdChat",
-                RealName = "NerdChat"
-            };
+            irc = new IRCSocket(System.Net.Dns.Resolve("irc.freenode.net").AddressList[0].ToString(), 6667, "tummcid");
+
+            //IrcRegistrationInfo info = new IrcUserRegistrationInfo()
+            //{
+            //    NickName = Environment.UserName, // "NerdChat",
+            //    UserName = Environment.UserName + "NerdChat",
+            //    RealName = "NerdChat"
+            //};
 
             //Open IRC client connection
-            irc.Connect("irc.freenode.net", false, info);
-            irc.RawMessageReceived += IrcClient_Receive;
+            irc.doWork();
+            //irc.RawMessageReceived += IrcClient_Receive;
 
             // Add server to treeview
             TreeViewItem serverTreeItem = new TreeViewItem();
             serverTreeItem.Header = "irc.freenode.net";
             channelTree.Items.Add(serverTreeItem);
 
-            // Add some dummy channels for testing
-            for (int i = 0; i < 10; i++) {
-                TreeViewItem dummyItem = new TreeViewItem();
-                dummyItem.Header = "#dummy" + i;
-                serverTreeItem.Items.Add(dummyItem);
+            // Populate channel list with some test channels
+            m_Channels.Add("#amagital-spam");
+            m_Channels.Add("#nerdchat-testing");
+
+            // Join and add channels to the tree
+            foreach (String channel in m_Channels)
+            {
+                irc.m_Outbound.Enqueue("JOIN " + channel);
+                TreeViewItem channelTreeItem = new TreeViewItem();
+                channelTreeItem.Header = channel;
+                serverTreeItem.Items.Add(channelTreeItem);
             }
+
+            listenThread = new Thread(() =>
+            {
+                while (true)
+                {
+                    if (irc.m_Inbound.Count == 0)
+                        continue;
+
+                    HandlePrivMsg(irc.m_Inbound.Dequeue());
+                }
+            });
+            listenThread.Start();
         }
         /// <summary>
         /// Service routine for recieving data from the IRC server.  Keep this routine simple and jump to another routine as soon as the nature of the message is known.  This should run in the main server thread.
@@ -94,7 +115,7 @@ namespace NerdChat
             {
                 case "PRIVMSG":
                     logText = "PRIVMSG from " + userName;
-                    HandlePrivMsg(userName, e.RawContent.Substring(e.RawContent.IndexOf(':', 1)+1)); //skip the first ':' and grab everything after the second
+                    //HandlePrivMsg(userName, e.RawContent.Substring(e.RawContent.IndexOf(':', 1)+1)); //skip the first ':' and grab everything after the second
                     break;
 
                 default:
@@ -115,13 +136,13 @@ namespace NerdChat
         /// </summary>
         /// <param name="fromNick">nickname of the user that sent this private message.  RFC specifies this can be a list of names or channels separated with commas</param>
         /// <param name="message">content of this message.  RFC 1459 sets a hard limit here around ~512 characters</param>
-        private void HandlePrivMsg(String fromNick, String message)
+        public void HandlePrivMsg(String message)
         {
             //TODO write a privmsg handler
             //TODO Pass privmsg to handler
             chatBox.Dispatcher.Invoke(delegate
             {
-                chatBox.AppendText(fromNick + " > " + message + "\n");
+                chatBox.AppendText(message + "\n");
                 chatBox.ScrollToEnd();
             });
         }
@@ -130,13 +151,13 @@ namespace NerdChat
         {
             if (e.Key == Key.Enter)
             {
-                String dest = destField.Text;
+                String dest = ((TreeViewItem)channelTree.SelectedItem).Header.ToString();
                 String text = messageField.Text;
 
                 chatBox.AppendText(dest + " > " + text + "\n");
                 chatBox.ScrollToEnd();
 
-                irc.LocalUser.SendMessage(dest, text);
+                irc.SendString("PRIVMSG " + dest + " " + text);
                 messageField.Clear();
             }
         }
