@@ -151,7 +151,8 @@ namespace NerdChat
         public void HandlePrivMsg(IRCMessage message)
         {
             //TODO write a privmsg handler
-            if (!m_Channels.Contains(message.dest))
+            if ((message.dest.Length > 0) &&
+                (!m_Channels.Contains(message.dest)))
                 m_Channels.Add(message.dest);
             //TODO Pass privmsg to handler
             chatBox.Dispatcher.Invoke(delegate

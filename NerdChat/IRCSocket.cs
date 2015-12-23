@@ -95,6 +95,8 @@ namespace NerdChat
                             {
                                 inM.dest = inM.command.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[1];
                                 inM.command = inM.command.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)[0];
+                                if (inM.command == "JOIN")
+                                    continue;
                                 //inM.payload = line.Substring(inM.command.Length + inM.host.Length + inM.command.Length);
                                 inM.payload = line.Split(new String[] { inM.dest } ,StringSplitOptions.RemoveEmptyEntries)[1];
                                 if (inM.payload.Length > 0)
