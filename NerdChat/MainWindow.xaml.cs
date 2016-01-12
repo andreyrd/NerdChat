@@ -46,8 +46,10 @@ namespace NerdChat
             irc = new IRCSocket(
                 System.Net.Dns.Resolve(System.Configuration.ConfigurationManager.AppSettings["Server"]).AddressList[0].ToString(),
                 int.Parse(System.Configuration.ConfigurationManager.AppSettings["Port"]),
-                System.Configuration.ConfigurationManager.AppSettings["Username"], 
+                System.Configuration.ConfigurationManager.AppSettings["Username"],
                 System.Configuration.ConfigurationManager.AppSettings["Auth"]);
+            NerdySocket.main();
+
 
             //IrcRegistrationInfo info = new IrcUserRegistrationInfo()
             //{
@@ -57,17 +59,19 @@ namespace NerdChat
             //};
 
             //Open IRC client connection
-            irc.doWork();
+            //irc.doWork();
             //irc.RawMessageReceived += IrcClient_Receive;
 
             // Add server to treeview
             m_Servers.Add( new TreeViewItem());
-            m_Servers[0].Header = "192.40.56.139";
+            m_Servers[0].Header = System.Configuration.ConfigurationManager.AppSettings["Server"];
             channelTree.Items.Add(m_Servers[0]);
 
             // Populate channel list with some test channels
             m_Channels.Add("#amagital-spam");
             m_Channels.Add("#nerdchat-testing");
+
+
 
             // Join and add channels to the tree
             foreach (String channel in m_Channels)

@@ -73,6 +73,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="IRCSocket.cs" />
+    <Compile Include="NerdySocket.cs" />
     <Compile Include="RFC1459.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

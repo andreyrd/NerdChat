@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NerdChat
 {
-    public class IRCSocket
+    public class IRCSocket :TcpClient
     {
         const int IN_BUFFER = 512;
         Socket m_Con;
@@ -21,6 +21,8 @@ namespace NerdChat
 
         public Queue<IRCMessage> m_Inbound;
         public Queue<IRCMessage> m_Outbound; //IRCMessage
+
+        public event EventHandler MessageArrived;
 
         public IRCSocket(String server, int port, String username, String pass = "")
         {
@@ -134,6 +136,7 @@ namespace NerdChat
 
                         //Console.WriteLine(logText);
                         m_Inbound.Enqueue(inM);
+                        OnMessageArrived(new NerdyChatEventArgs(inM));
                     }
                     inbound.Clear();
                 }//Read socket again
@@ -166,6 +169,15 @@ namespace NerdChat
             // Begin sending the data to the remote device.
             m_Con.Send(byteData);
         }
+        protected virtual void OnMessageArrived(NerdyChatEventArgs e)
+        {
+            EventHandler handler = MessageArrived;
+
+            if (handler != null)
+                handler(this, e);
+            else
+                throw new Exception("Unhandled message");
+        }
     }
     public class IRCMessage
     {
@@ -194,5 +206,39 @@ namespace NerdChat
         public String target;
         public String message;
 
+    }
+
+    public class NerdyChatEventArgs : EventArgs
+    {
+        public NerdyChatEventArgs(string s)
+        {
+            msg = s;
+        }
+        public NerdyChatEventArgs(IRCMessage m)
+        {
+            payload = m;
+        }
+
+        private string msg;
+        private IRCMessage payload;
+
+        public string Msg
+        {
+            get { return msg; }
+            set { msg = value; }
+        }
+
+        public IRCMessage Payload
+        {
+            get
+            {
+                return payload;
+            }
+
+            set
+            {
+                payload = value;
+            }
+        }
     }
 }
